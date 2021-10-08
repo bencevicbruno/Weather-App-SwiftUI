@@ -21,10 +21,21 @@ struct SettingsView: View {
                 HStack {
                     BackButton {
                         self.presentationMode.wrappedValue.dismiss()
-                        CacheService().saveSettings(settings)
+                        CacheService().save(settingsData: self.settings, onFailure: { error, message in
+                            print("\(error): \(message)")
+                        })
                     }
                     
                     Spacer()
+                    
+                    Button(action: {
+                        let cacheService = CacheService()
+                        cacheService.deleteSettings()
+                        cacheService.deleteWeatherData()
+                        cacheService.deletePreviouslySearchedCities()
+                    }, label: {
+                        Image(systemName: "trash")
+                    })
                 }
                 
                 Spacer()

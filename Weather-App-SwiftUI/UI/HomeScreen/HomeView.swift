@@ -83,14 +83,10 @@ struct HomeView: View {
     func fetchWeatherData(for cityName: String) {
         let service = OpenWeatherAPIService()
         
-        DispatchQueue.global(qos: .background).async {
-            if let response = service.getWeatherData(for: cityName, errorNotifier: {
-                print("\($0): \($1 ?? "Unknown error")")
-            }) {
-                DispatchQueue.main.async {
-                    self.data = WeatherData(response: response)
-                }
-            }
+        service.fetchWeatherData(for: cityName) { fetchedData in
+            self.data = WeatherData(response: fetchedData)
+        } onFailure: { error, message in
+            print("\(error): \(message)")
         }
     }
 }

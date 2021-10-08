@@ -73,11 +73,18 @@ struct SearchScreenView: View {
     
     func saveSearched(_ cityName: String) {
         self.cachedCities.append(cityName)
-        CacheService().savePreviousSearch(self.cachedCities)
+        
+        CacheService().save(previouslySearchedCities: self.searchedCities, onFailure: { error, message in
+            print("\(error): \(message)")
+        })
     }
     
     func loadCache() {
-        self.cachedCities = CacheService().loadPreviousSearch()
+        CacheService().loadPreviouslySearchedCities { loadedCities in
+            self.cachedCities = loadedCities
+        } onFailure: { error, message in
+            print("\(error): \(message)")
+        }
     }
     
     var citiesToShow: [String] {
@@ -93,17 +100,13 @@ struct SearchScreenView: View {
     }
     
     func searchName() {
-        let service = GeonamesService()
+        let service = GeonamesAPIService()
         
-        DispatchQueue.global(qos: .background).async {
-            let cities = service.getListOfCities(prefixedWith: searchKey) { error, message in
-                print("\(error): \(message ?? "No description")")
-            }
-            
-            DispatchQueue.main.async {
-                self.searchedCities = cities
-                self.showingCachedResults = false
-            }
+        service.fetchListOfCities(prefixedWith: searchKey) { fetchedCities in
+            self.searchedCities = fetchedCities
+            self.showingCachedResults = false
+        } onFailure: { error, message in
+            print("\(error): \(message)")
         }
     }
 }

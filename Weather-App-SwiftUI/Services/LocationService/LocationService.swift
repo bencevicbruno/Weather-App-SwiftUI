@@ -10,8 +10,6 @@ import CoreLocation
 class LocationSerivce: NSObject, CLLocationManagerDelegate {
     typealias LocationConsumer = (CLLocationCoordinate2D) -> Void
     
-    static let instance = LocationSerivce()
-    
     private lazy var locationManager = CLLocationManager()
     private var locationConsumers = [LocationConsumer]()
     

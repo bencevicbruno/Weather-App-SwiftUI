@@ -40,7 +40,7 @@ extension WeatherData {
 }
 
 extension WeatherData {
-    convenience init(response: WeatherDataResponse) {
+    convenience init(response: OpenWeatherAPIResponse) {
         self.init(weatherIcon: Self.getConditionFrom(id: response.weather.first?.id ?? 0),
                   currentTemperature: Int(response.main.temp),
                   location: response.name,

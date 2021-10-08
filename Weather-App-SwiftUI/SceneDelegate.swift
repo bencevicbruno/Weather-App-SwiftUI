@@ -18,9 +18,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
 
+        CacheService().loadSettings { loadedSettings in
+            self.showWindow(scene: scene, settings: loadedSettings)
+        } onFailure: { error, message in
+            self.showWindow(scene: scene, settings: SettingsData.init(useCelsius: true, showHumidity: true, showPressure: true, showWindSpeed: true))
+        }
+    }
+
+    func showWindow(scene: UIScene, settings: SettingsData) {
         // Create the SwiftUI view that provides the window contents.
         let contentView = MainView()
-
+            .environmentObject(settings)
+        
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
@@ -29,7 +38,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.makeKeyAndVisible()
         }
     }
-
+    
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.

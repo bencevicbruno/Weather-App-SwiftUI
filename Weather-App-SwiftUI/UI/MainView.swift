@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MainView: View {
     @State private var showingSettingsSheet = false
-    var settings = CacheService().loadSettings()
+
     
     var body: some View {
         VStack {
@@ -21,8 +21,11 @@ struct MainView: View {
             .sheet(isPresented: $showingSettingsSheet) {
                 SettingsView()
             }
-            .environmentObject(settings)
         }
+    }
+    
+    init() {
+        
     }
 }
 
