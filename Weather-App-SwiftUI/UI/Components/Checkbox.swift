@@ -1,15 +1,8 @@
-//
-//  Checkbox.swift
-//  Weather-App-SwiftUI
-//
-//  Created by Bruno Benčević on 10/6/21.
-//
-
 import SwiftUI
 
 struct Checkbox: View {
     @Binding var isChecked: Bool
-    var onTapped: CheckboxTappedCallback?
+    var action: ((Bool) -> Void)?
     
     var body: some View {
         ZStack {
@@ -24,19 +17,23 @@ struct Checkbox: View {
         .frame(width: 40, height: 40)
         .onTapGesture {
             isChecked.toggle()
-            print("Checking")
-            self.onTapped?(self.isChecked)
+            self.action?(self.isChecked)
         }
     }
     
-    init(_ binding: Binding<Bool>, onTapped: CheckboxTappedCallback? = nil) {
+    init(_ binding: Binding<Bool>, action: ((Bool) -> Void)? = nil) {
         self._isChecked = binding
-        self.onTapped = onTapped
+        self.action = action
     }
 }
 
 struct Checkbox_Previews: PreviewProvider {
     static var previews: some View {
-        Checkbox(.constant(true), onTapped: nil)
+        Checkbox(.constant(true))
+            .padding()
+            .background(Color.blue)
+        Checkbox(.constant(false))
+            .padding()
+            .background(Color.blue)
     }
 }

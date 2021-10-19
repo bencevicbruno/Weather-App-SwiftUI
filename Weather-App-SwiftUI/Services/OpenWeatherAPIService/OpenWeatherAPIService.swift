@@ -25,41 +25,37 @@ class OpenWeatherAPIService: OpenWeatherAPIServiceProtocol {
     }
     
     private func fetchWeatherData(from url: URL?, onSuccess: @escaping SuccessHandler, onFailure: FailureHandler?) {
-        guard let url = url else {
-            Self.runOnMainThread {
-                onFailure?("Bad URL", "Invalid URL created for OpenWeatherAPI request!")
+        DispatchQueue.runInBackground {
+            guard let url = url else {
+                DispatchQueue.runOnMain {
+                    onFailure?(Failure(error: "Bad URL", message: "Invalid URL created for OpenWeatherAPI request!"))
+                }
+                return
             }
-            return
-        }
-        
-        let data: Data
-        do {
-            data = try Data(contentsOf: url)
-        } catch {
-            Self.runOnMainThread {
-                onFailure?("Error fetching data", error.localizedDescription)
+            
+            let data: Data
+            do {
+                data = try Data(contentsOf: url)
+            } catch {
+                DispatchQueue.runOnMain {
+                    onFailure?(Failure(error: "Error fetching data", message: error.localizedDescription))
+                }
+                return
             }
-            return
-        }
-        
-        let response: OpenWeatherAPIResponse
-        do {
-            response = try JSONDecoder().decode(OpenWeatherAPIResponse.self, from: data)
-        } catch {
-            Self.runOnMainThread {
-                onFailure?("Error parsing JSON response", error.localizedDescription)
+            
+            let response: OpenWeatherAPIResponse
+            do {
+                response = try JSONDecoder().decode(OpenWeatherAPIResponse.self, from: data)
+            } catch {
+                DispatchQueue.runOnMain {
+                    onFailure?(Failure(error: "Error parsing JSON response", message: error.localizedDescription))
+                }
+                return
             }
-            return
-        }
-        
-        Self.runOnMainThread {
-            onSuccess(response)
-        }
-    }
-    
-    private static func runOnMainThread(_ closure: @escaping () -> Void) {
-        DispatchQueue.main.async {
-            closure()
+            
+            DispatchQueue.runOnMain {
+                onSuccess(response)
+            }
         }
     }
 }

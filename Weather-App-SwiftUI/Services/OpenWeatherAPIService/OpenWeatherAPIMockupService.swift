@@ -1,10 +1,3 @@
-//
-//  OpenWeatherAPIMockupService.swift
-//  Weather-App-SwiftUI
-//
-//  Created by Bruno Benčević on 10/8/21.
-//
-
 import Foundation
 import CoreLocation
 
@@ -14,6 +7,12 @@ class OpenWeatherAPIMockupService: OpenWeatherAPIServiceProtocol {
     }
     
     func fetchWeatherData(for cityName: String, onSuccess: @escaping SuccessHandler, onFailure: FailureHandler?) {
-        onSuccess(OpenWeatherAPIResponse.test)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            if Int.random(in: 1...10) > 5 {
+                onSuccess(OpenWeatherAPIResponse.test)
+            } else {
+                onFailure?(Failure(error: "Error fetching data", message: "This error was forcefully returned."))
+            }
+        }
     }
 }

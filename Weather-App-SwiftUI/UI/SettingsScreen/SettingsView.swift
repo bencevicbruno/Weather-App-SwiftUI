@@ -1,92 +1,57 @@
-//
-//  SettingsView.swift
-//  Weather-App-SwiftUI
-//
-//  Created by Bruno Benčević on 10/6/21.
-//
-
+import Combine
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var settings: SettingsData
-    @Environment(\.presentationMode) var presentationMode
-    
-    @State private var checkDummy = false
+    @ObservedObject var interactor: SettingsViewInteractor
     
     var body: some View {
         ZStack {
-            BackgroundView()
+            Background()
             
             VStack {
                 HStack {
-                    BackButton {
-                        self.presentationMode.wrappedValue.dismiss()
-                        CacheService().save(settingsData: self.settings, onFailure: { error, message in
-                            print("\(error): \(message)")
-                        })
-                    }
+                    BackButton(action: self.interactor.backButtonPressed)
                     
                     Spacer()
-                    
-                    Button(action: {
-                        let cacheService = CacheService()
-                        cacheService.deleteSettings()
-                        cacheService.deleteWeatherData()
-                        cacheService.deletePreviouslySearchedCities()
-                    }, label: {
-                        Image(systemName: "trash")
-                    })
                 }
                 
                 Spacer()
                 
-                HStack {
-                    VStack(alignment: .leading) {
-                        LabeledCheckbox($settings.useCelsius, label: "Celsius") { isChecked in
-                            self.settings.useCelsius = isChecked
-                        }
+                VStack {
+                    HStack {
+                        TextWithCheckboxSubview($interactor.state.useCelsius, text: "Celsius")
                         
-                        LabeledCheckbox($settings.useCelsius.opposite, label: "Fahrenheit") { isChecked in
-                            self.settings.useCelsius = !isChecked
-                        }
+                        Spacer()
                     }
                     
-                    Spacer()
+                    HStack {
+                        TextWithCheckboxSubview($interactor.state.useCelsius.opposite, text: "Fahrenheit")
+                        
+                        Spacer()
+                    }
                 }
                 
                 Spacer()
                 
-                HStack {
-                    Spacer()
-                    ImageCheckbox($settings.showHumidity, image: Image("humidity")) { isChecked in
-                        self.settings.showHumidity = isChecked
-                        print("Humidity tapped in SettingsVIew")
-                    }
+                HStack(spacing: 20) {
+                    ImageWithCheckboxSubview($interactor.state.showHumidity, imageName: "humidity")
                     
-                    Spacer()
+                    ImageWithCheckboxSubview($interactor.state.showPressure, imageName: "pressure")
                     
-                    ImageCheckbox($settings.showPressure, image: Image("pressure")) { isChecked in
-                        self.settings.showPressure = isChecked
-                    }
-
-                    Spacer()
-                    
-                    ImageCheckbox($settings.showWindSpeed, image: Image("wind")) { isChecked in
-                        self.settings.showWindSpeed = isChecked
-                    }
-
-                    Spacer()
+                    ImageWithCheckboxSubview($interactor.state.showWindSpeed, imageName: "wind")
                 }
                 
                 Spacer()
             }
             .padding()
         }
+        .removeNavigationBar()
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView()
+        let state = SettingsViewState.test
+        SettingsView(interactor: SettingsViewInteractor(state: state))
     }
 }

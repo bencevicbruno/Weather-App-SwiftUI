@@ -1,20 +1,13 @@
-//
-//  GeonamesService.swift
-//  Weather-App-SwiftUI
-//
-//  Created by Bruno Benčević on 10/6/21.
-//
-
 import Foundation
 
-class GeonamesAPIService: GeonameAPIServiceProtocol {
+class GeonamesAPIService: GeonamesAPIServiceProtocol {
     func fetchListOfCities(prefixedWith prefix: String, onSuccess: @escaping SuccessHandler, onFailure: FailureHandler?) {
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.runInBackground {
             let urlSafePrefix = prefix.lowercased().toURLSafe()
             
             guard let url = URL(string: "http://api.geonames.org/searchJSON?name_startsWith=\(urlSafePrefix)&maxRows=10&username=bencevic_bruno") else {
-                Self.runOnMainThread {
-                    onFailure?("Invalid city name", "Make sure your city name doesn't!")
+                DispatchQueue.runOnMain {
+                    onFailure?(Failure(error: "Invalid city name", message: "Make sure your city name doesn't!"))
                 }
                 return
             }
@@ -23,8 +16,8 @@ class GeonamesAPIService: GeonameAPIServiceProtocol {
             do {
                 data = try Data(contentsOf: url)
             } catch {
-                Self.runOnMainThread {
-                    onFailure?("Error fetching data", error.localizedDescription)
+                DispatchQueue.runOnMain {
+                    onFailure?(Failure(error: "Error fetching data", message: error.localizedDescription))
                 }
                 return
             }
@@ -33,23 +26,17 @@ class GeonamesAPIService: GeonameAPIServiceProtocol {
             do {
                 response = try JSONDecoder().decode(GeonamesAPIResponse.self, from: data)
             } catch {
-                Self.runOnMainThread {
-                    onFailure?("Error parsing JSON response", error.localizedDescription)
+                DispatchQueue.runOnMain {
+                    onFailure?(Failure(error: "Error parsing JSON response", message: error.localizedDescription))
                 }
                 return
             }
             
             let cityNames = response.geonames.map { $0.name }
             let cities = Array(Set(cityNames)).sorted()
-            Self.runOnMainThread {
+            DispatchQueue.runOnMain {
                 onSuccess(cities)
             }
-        }
-    }
-    
-    private static func runOnMainThread(_ closure: @escaping () -> Void) {
-        DispatchQueue.main.async {
-            closure()
         }
     }
 }

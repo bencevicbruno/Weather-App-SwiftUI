@@ -1,25 +1,11 @@
-//
-//  SettingsData.swift
-//  Weather-App-SwiftUI
-//
-//  Created by Bruno Benčević on 9/28/21.
-//
-
 import Foundation
 
-class SettingsData: NSObject, ObservableObject, Codable {
+final class SettingsData: ObservableObject {
     @Published var useCelsius: Bool
     @Published var showHumidity: Bool
     @Published var showPressure: Bool
     @Published var showWindSpeed: Bool
-    
-    override init() {
-        self.useCelsius = true
-        self.showHumidity = true
-        self.showPressure = true
-        self.showWindSpeed = true
-    }
-    
+
     init(useCelsius: Bool, showHumidity: Bool, showPressure: Bool, showWindSpeed: Bool) {
         self.useCelsius = useCelsius
         self.showHumidity = showHumidity
@@ -27,19 +13,36 @@ class SettingsData: NSObject, ObservableObject, Codable {
         self.showWindSpeed = showWindSpeed
     }
     
-    static var test: SettingsData {
+    init(from state: SettingsViewState) {
+        self.useCelsius = state.useCelsius
+        self.showHumidity = state.showHumidity
+        self.showPressure = state.showPressure
+        self.showWindSpeed = state.showWindSpeed
+    }
+    
+    init(copy: SettingsData) {
+        self.useCelsius = copy.useCelsius
+        self.showHumidity = copy.showHumidity
+        self.showPressure = copy.showPressure
+        self.showWindSpeed = copy.showWindSpeed
+    }
+    
+    func update(_ newSettingsData: SettingsData) {
+        self.useCelsius = newSettingsData.useCelsius
+        self.showHumidity = newSettingsData.showHumidity
+        self.showPressure = newSettingsData.showPressure
+        self.showWindSpeed = newSettingsData.showWindSpeed
+    }
+    
+    static var defaultValue: SettingsData {
+        SettingsData(useCelsius: true, showHumidity: true, showPressure: true, showWindSpeed: true)
+    }
+    
+    static var sample: SettingsData {
         SettingsData(useCelsius: true, showHumidity: true, showPressure: true, showWindSpeed: true)
     }
     
     // MARK: Codable
-    
-    enum CodingKeys: CodingKey {
-        case useCelsius
-        case showHumidity
-        case showPressure
-        case showWindSpeed
-    }
-    
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
@@ -48,13 +51,22 @@ class SettingsData: NSObject, ObservableObject, Codable {
         self.showPressure = try container.decode(Bool.self, forKey: .showPressure)
         self.showWindSpeed = try container.decode(Bool.self, forKey: .showWindSpeed)
     }
+}
+
+extension SettingsData: Codable {
+    enum CodingKeys: CodingKey {
+        case useCelsius
+        case showHumidity
+        case showPressure
+        case showWindSpeed
+    }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(self.useCelsius, forKey: .useCelsius)
         try container.encode(self.showPressure, forKey: .showHumidity)
-        try container.encode(showPressure, forKey: .showPressure)
-        try container.encode(showWindSpeed, forKey: .showWindSpeed)
+        try container.encode(self.showPressure, forKey: .showPressure)
+        try container.encode(self.showWindSpeed, forKey: .showWindSpeed)
     }
 }

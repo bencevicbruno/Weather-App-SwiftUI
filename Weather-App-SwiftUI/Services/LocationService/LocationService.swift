@@ -1,17 +1,8 @@
-//
-//  LocationService.swift
-//  Weather-App-SwiftUI
-//
-//  Created by Bruno Benčević on 10/6/21.
-//
-
 import CoreLocation
 
-class LocationSerivce: NSObject, CLLocationManagerDelegate {
-    typealias LocationConsumer = (CLLocationCoordinate2D) -> Void
-    
+class LocationService: NSObject, CLLocationManagerDelegate, LocationServiceProtocol {
     private lazy var locationManager = CLLocationManager()
-    private var locationConsumers = [LocationConsumer]()
+    private var locationRequests = [LocationRequest]()
     
     override init() {
         super.init()
@@ -19,23 +10,26 @@ class LocationSerivce: NSObject, CLLocationManagerDelegate {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
     
-    func requestLocationData(thenRun consumer: @escaping LocationConsumer) {
-        locationConsumers.append(consumer)
-        
+    func requestLocation(_ request: LocationRequest) {
+        locationRequests.append(request)
         locationManager.startUpdatingLocation()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.first {
-            locationConsumers.forEach { consumer in
-                consumer(location.coordinate)
+            locationRequests.forEach { request in
+                request.locationHandler(location.coordinate)
             }
-            locationConsumers.removeAll()
+            locationRequests.removeAll()
             locationManager.stopUpdatingLocation()
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print(error)
+        locationRequests.forEach { request in
+            request.failureHandler?(Failure(error: "Location Service Error", message: "Unable to retrieve location."))
+        }
+        locationRequests.removeAll()
+        locationManager.stopUpdatingLocation()
     }
 }

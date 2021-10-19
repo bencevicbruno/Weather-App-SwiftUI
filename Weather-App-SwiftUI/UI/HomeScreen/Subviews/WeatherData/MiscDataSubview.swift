@@ -1,13 +1,6 @@
-//
-//  OptionalWeatherInfoView.swift
-//  Weather-App-SwiftUI
-//
-//  Created by Bruno Benčević on 10/6/21.
-//
-
 import SwiftUI
 
-struct OptionalWeatherInfoView: View {
+struct MiscDataSubView: View {
     var name: String
     var value: Float
     var unit: String
@@ -21,19 +14,25 @@ struct OptionalWeatherInfoView: View {
             
             Text("\(formattedValue) \(unit)")
                 .fontWeight(.medium)
-                .font(Font.system(size: 25))
+                .font(Font.system(size: 24))
                 .layoutPriority(1)
         }.foregroundColor(Color.white)
     }
     
     var formattedValue: String {
-        return NumberFormatter.weatherDataFormatter.string(from: NSNumber(value: value)) ?? "\(value)"
+        let formatter = NumberFormatter()
+        
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = ""
+        formatter.maximumFractionDigits = 2
+        
+        return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 }
 
-struct OptionalWeatherInfoView_Previews: PreviewProvider {
+struct MiscDataSubView_Previews: PreviewProvider {
     static var previews: some View {
-        OptionalWeatherInfoView(name: "Humidity", value: 0.79, unit: "%")
+        MiscDataSubView(name: "Humidity", value: 0.79, unit: "%")
             .background(Color.blue)
     }
 }

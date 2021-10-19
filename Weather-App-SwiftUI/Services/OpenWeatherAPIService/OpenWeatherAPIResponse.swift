@@ -1,10 +1,3 @@
-//
-//  OpenWeatherAPIResponse.swift
-//  Weather-App-SwiftUI
-//
-//  Created by Bruno Benčević on 10/8/21.
-//
-
 import Foundation
 
 struct OpenWeatherAPIResponse: Codable {
@@ -28,7 +21,9 @@ struct OpenWeatherAPIResponse: Codable {
     struct Wind: Codable {
         let speed: Float
     }
-    
+}
+
+extension OpenWeatherAPIResponse {
     static var test: OpenWeatherAPIResponse {
         OpenWeatherAPIResponse(weather: [Weather(id: 800)],
                                main: Main(temp: 21.0, temp_min: 14.5, temp_max: 31.2, pressure: 1016.7, humidity: 79),
